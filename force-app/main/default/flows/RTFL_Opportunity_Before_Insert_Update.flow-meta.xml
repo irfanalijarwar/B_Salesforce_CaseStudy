@@ -53,7 +53,7 @@
   TEXT(YEAR(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7) + 6)) &amp; &quot;-&quot; &amp;
   RIGHT(&quot;0&quot; &amp; TEXT(MONTH(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7) + 6)), 2) &amp; &quot;-&quot; &amp;
   RIGHT(&quot;0&quot; &amp; TEXT(DAY(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7) + 6)), 2) &amp;
-  &quot; 12:00:00&quot;
+  &quot; 23:59:00&quot;
 )</expression>
     </formulas>
     <formulas>
@@ -65,10 +65,10 @@
         <name>Formula_StartDate_OfWeek</name>
         <dataType>DateTime</dataType>
         <expression>DATETIMEVALUE(
-  TEXT(YEAR(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7))) &amp; &quot;-&quot; &amp;
-  RIGHT(&quot;0&quot; &amp; TEXT(MONTH(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7))), 2) &amp; &quot;-&quot; &amp;
-  RIGHT(&quot;0&quot; &amp; TEXT(DAY(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7))), 2) &amp;
-  &quot; 00:00:00&quot;
+    TEXT(YEAR(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7))) &amp; &quot;-&quot; &amp;
+    RIGHT(&quot;0&quot; &amp; TEXT(MONTH(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7))), 2) &amp; &quot;-&quot; &amp;
+    RIGHT(&quot;0&quot; &amp; TEXT(DAY(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7))), 2) &amp;
+    &quot; 00:00:00&quot;
 )</expression>
     </formulas>
     <interviewLabel>RTFL: Opportunity_Before_Insert/Update {!$Flow.CurrentDateTime}</interviewLabel>
