@@ -1,0 +1,82 @@
+<!--
+*********************************************************
+LWC Template Name  : BST_AccountContactPicker_Cmp
+Created Date       : March 9th, 2025
+@description       : This Lightning Web Component template displays an account 
+                     selection dropdown, a contact search feature, and a 
+                     paginated list of contacts related to the selected account.
+@author            : Irfan Ali
+Modification Log:
+Ver   Date         Author                         Modification
+1.0   09-03-2025   Irfan Ali                      Initial Version
+1.1   10-03-2025   Irfan Ali                      Implemented pagination
+*********************************************************
+-->
+<template>
+    <lightning-card title="Account Contact Picker" icon-name="standard:account">
+        <!-- Account Selection Dropdown -->
+        <div class="slds-m-around_medium" style="display: flex; justify-content: center;">
+            <lightning-combobox
+                label="Select an Account"
+                options={accounts}
+                value={selectedAccountId}
+                onchange={handleAccountChange}>
+            </lightning-combobox>
+        </div>
+
+        <template if:true={selectedAccountId}>
+            <!-- Search Input Field -->
+            <div class="slds-m-around_medium" style="display: flex; justify-content: center;">
+                <lightning-input 
+                    type="search" 
+                    label="Search" 
+                    value={searchKey} 
+                    onchange={handleSearch}>
+                </lightning-input>             
+            </div>     
+            
+            <!-- Contact Data Table -->
+            <lightning-datatable
+                key-field="Id"
+                data={contacts}
+                columns={columns}
+                onsort={handleSort}
+                sorted-by={sortBy}
+                sorted-direction={sortDirection}
+                onrowaction={handleRowAction}
+                hide-checkbox-column="true">
+            </lightning-datatable>
+
+            <!-- Pagination Controls -->
+            <div class="slds-m-around_medium slds-align_absolute-center">
+                <lightning-button label="Previous" onclick={handlePrevious} disabled={isPreviousDisabled}></lightning-button>
+                <span class="slds-m-horizontal_medium"> Page {currentPageNumber} </span>
+                <lightning-button label="Next" onclick={handleNext} disabled={isNextDisabled}></lightning-button>
+            </div>
+        </template>
+
+        <template if:true={isModalOpen}>
+            <!-- Contact Edit Modal -->
+            <section role="dialog" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 class="slds-text-heading_medium">Edit Contact</h2>
+                        <button class="slds-button slds-button_icon slds-modal__close" onclick={closeModal}>
+                            <lightning-icon icon-name="utility:close" size="small"></lightning-icon>
+                        </button>
+                    </header>
+                    
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <lightning-record-edit-form object-api-name="Contact" record-id={selectedContactId} onsuccess={handleSuccess}>
+                            <lightning-input-field field-name="Name"></lightning-input-field>
+                            <lightning-input-field field-name="Email"></lightning-input-field>
+                            <lightning-input-field field-name="Phone"></lightning-input-field>
+                            <lightning-button label="Cancel" onclick={closeModal}></lightning-button>
+                            <lightning-button type="submit" label="Save" variant="brand"></lightning-button>
+                        </lightning-record-edit-form>
+                    </div>
+                </div>
+            </section>
+        </template>
+    </lightning-card>
+</template>

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>63.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <customErrors>
+        <name>General_Error_Message</name>
+        <label>General Error Message</label>
+        <locationX>578</locationX>
+        <locationY>395</locationY>
+        <customErrorMessages>
+            <errorMessage>There is something went through while fetching prior opportunity. Please contact System Admin.</errorMessage>
+            <isFieldError>false</isFieldError>
+        </customErrorMessages>
+    </customErrors>
+    <customErrors>
+        <description>This text is used to display an error message if user tries create another opportunity in a week</description>
+        <name>Opportunity_AlreadyExist_ErrorMsg</name>
+        <label>Opportunity_AlreadyExist_ErrorMsg</label>
+        <locationX>50</locationX>
+        <locationY>503</locationY>
+        <customErrorMessages>
+            <errorMessage>{!Formula_Error_Message}</errorMessage>
+            <isFieldError>false</isFieldError>
+        </customErrorMessages>
+    </customErrors>
+    <decisions>
+        <name>DEC_Was_Opportunity_Created_in_this_week</name>
+        <label>DEC: Was_Opportunity_Created_in_this_week?</label>
+        <locationX>182</locationX>
+        <locationY>395</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>YesOpportunityIsCreatedThisWeek</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Get_Prior_Opportunity</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Opportunity_AlreadyExist_ErrorMsg</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>Formula_EndDate_OfWeek</name>
+        <dataType>DateTime</dataType>
+        <expression>DATETIMEVALUE(
+  TEXT(YEAR(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7) + 6)) &amp; &quot;-&quot; &amp;
+  RIGHT(&quot;0&quot; &amp; TEXT(MONTH(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7) + 6)), 2) &amp; &quot;-&quot; &amp;
+  RIGHT(&quot;0&quot; &amp; TEXT(DAY(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7) + 6)), 2) &amp;
+  &quot; 12:00:00&quot;
+)</expression>
+    </formulas>
+    <formulas>
+        <name>Formula_Error_Message</name>
+        <dataType>String</dataType>
+        <expression>&quot;You have already created an opportunity (&quot; &amp; {!Get_Prior_Opportunity.Name} &amp;&quot;) this week. Please close the previous opportunity before creating a new one. Here is the link to prior opportunity &quot;&amp; LEFT({!$Api.Partner_Server_URL_260}, FIND(&quot;/services&quot;, {!$Api.Partner_Server_URL_260})) &amp; {!Get_Prior_Opportunity.Id}</expression>
+    </formulas>
+    <formulas>
+        <name>Formula_StartDate_OfWeek</name>
+        <dataType>DateTime</dataType>
+        <expression>DATETIMEVALUE(
+  TEXT(YEAR(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7))) &amp; &quot;-&quot; &amp;
+  RIGHT(&quot;0&quot; &amp; TEXT(MONTH(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7))), 2) &amp; &quot;-&quot; &amp;
+  RIGHT(&quot;0&quot; &amp; TEXT(DAY(TODAY() - MOD(WEEKDAY(TODAY()) + 5, 7))), 2) &amp;
+  &quot; 00:00:00&quot;
+)</expression>
+    </formulas>
+    <interviewLabel>RTFL: Opportunity_Before_Insert/Update {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>RTFL: Opportunity_Before_Insert/Update</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordLookups>
+        <name>Get_Prior_Opportunity</name>
+        <label>Get Prior Opportunity</label>
+        <locationX>182</locationX>
+        <locationY>287</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>DEC_Was_Opportunity_Created_in_this_week</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>General_Error_Message</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>OwnerId</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$Record.OwnerId</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>IsClosed</field>
+            <operator>EqualTo</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>CreatedDate</field>
+            <operator>GreaterThanOrEqualTo</operator>
+            <value>
+                <elementReference>Formula_StartDate_OfWeek</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>CreatedDate</field>
+            <operator>LessThanOrEqualTo</operator>
+            <value>
+                <elementReference>Formula_EndDate_OfWeek</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>CreatedById</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>$User.Id</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Opportunity</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <start>
+        <locationX>56</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Prior_Opportunity</targetReference>
+        </connector>
+        <object>Opportunity</object>
+        <recordTriggerType>Create</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>
